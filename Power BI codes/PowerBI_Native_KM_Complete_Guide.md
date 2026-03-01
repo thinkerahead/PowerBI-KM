@@ -326,101 +326,662 @@ CALCULATE(
 
 ## Building Visuals
 
-### Visual 1: Risk Table (Matrix)
+### Visual 1: Risk Table (Matrix) — Detailed Steps
 
-1. **Insert a Matrix visual**.
+The risk table shows "Number at Risk" at each timepoint per group — essential context for interpreting KM curves.
+
+#### Step 1: Insert and Configure
+1. **Home tab** → **New Visual** → Select **Matrix**.
+2. Drag fields to zones:
+   - **Rows**: `Patients[groupVar]`
+   - **Columns**: `TimePoints[Time]`
+   - **Values**: `AtRisk_AtTime` (measure)
+
+#### Step 2: Basic Formatting
+1. **Right-click the Matrix** → **Format visual**.
+2. **Row headers**:
+   - Text size: 11pt (readable but compact)
+   - Font: Segoe UI or Arial
+   - Alignment: Left
+3. **Column headers**:
+   - Text size: 10pt
+   - Bold: Yes
+4. **Values**:
+   - Number format: Whole number, 0 decimals
+   - Text size: 10pt
+   - Alignment: Center
+
+#### Step 3: Remove Totals (Optional)
+1. **Format visual** → **Row headers** → Toggle **Subtotals** to **Off**.
+2. **Column headers** → Toggle **Totals** to **Off**.
+
+#### Step 4: Color Coding (Optional)
+1. **Right-click Matrix** → **Conditional formatting** → **Background color scale**.
+2. Select **Color scales** on Values (AtRisk_AtTime).
+3. Choose: Minimum (light blue) → Maximum (dark blue).
+4. This helps visualize at-risk counts at a glance.
+
+#### Step 5: Sizing
+1. Adjust column width: Drag between column headers in visual.
+2. Recommend: 40px per timepoint column + 60px for group row.
+3. For 6 timepoints: ~300px total width.
+
+**Result**: Clean, readable risk table
+
+```
+groupVar   0   30   60   90  120
+────────────────────────────────
+GroupA   100  95   88   80   72
+GroupB   100  92   84   75   65
+GroupC   100  94   87   78   68
+```
+
+---
+
+### Visual 2: KM Curve (Line Chart) — Detailed Steps
+
+The main KM curve showing survival probability over time per group.
+
+#### Step 1: Insert and Configure
+1. **Home tab** → **New Visual** → Select **Line chart**.
+2. Drag fields:
+   - **X-Axis**: `TimePoints[Time]`
+   - **Y-Axis**: `KM_Survival` (measure)
+   - **Legend**: `Patients[groupVar]`
+
+#### Step 2: Make X-Axis Continuous
+1. **Right-click the X-Axis** (Time) → **Continuous** (not Categorical).
+2. This creates a true time-scale (not evenly spaced categories).
+
+#### Step 3: Axis Configuration
+1. **Format visual** → **Y-Axis**:
+   - Minimum: 0
+   - Maximum: 1
+   - Display units: None (or Percentage)
+2. **X-Axis**:
+   - Show title: Yes → "Time (days)" or your label
+   - Title font size: 11pt
+
+#### Step 4: Data Labels & Markers
+1. **Format visual** → **Data labels**:
+   - Toggle **On**.
+   - Display units: (leave default).
+   - Decimal places: 2 (e.g., 0.88).
+   - Position: **Top** or **Right** (avoid crossing curves).
+   - Font size: 9pt.
+2. **Format visual** → **Data point**:
+   - Show markers: **Yes** (circles at each timepoint).
+   - Marker size: 5–8 (visible but not cluttered).
+
+#### Step 5: Line Styles
+1. **Format visual** → **Series** → Expand each group's line:
+   - Line style: **Solid** (not dashed).
+   - Line width: 2–3pt (thick enough to see).
+   - Transparency: 0% (fully opaque).
+
+#### Step 6: Legend Positioning
+1. **Format visual** → **Legend**:
+   - Position: **Right** (outside visual).
+   - Legend name: "Treatment Group" (or your label).
+   - Legend text size: 10pt.
+
+#### Step 7: Color Assignment (Optional but Recommended)
+1. **Right-click curve** → **Assign color**.
+2. Assign distinct colors per group:
+   - GroupA: Blue
+   - GroupB: Red
+   - GroupC: Green
+   - (Use colorblind-friendly palette: https://coolors.co/palettes/trending)
+
+**Result**: Professional KM curve with clear group distinction
+
+```
+Survival Probability
+    1.0  ●━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         │         GroupA (0.95)
+    0.8  │ ●●●●●●●●●●●●●●●●●●●●●●●●●●●●
+         │         GroupB (0.88)
+    0.6  │  ╲●●●●●●●●●●●●●●●●●●●●●●●●●
+         │    ╲ GroupC (0.84)
+    0.4  │     ╲●●●●●●●●●●●●●●●●●●●●●
+         │
+    0.2  │      ╲╲●●●●●●●●●●●●●●●●●●
+         │
+    0.0  └──────╱╱╱───────────────────
+        0    30   60   90   120  Time (days)
+```
+
+---
+
+### Visual 3: KM with Confidence Intervals (Combo/Area Chart)
+
+For publication-quality visuals, add ±95% confidence bands.
+
+#### Option A: Combo Chart (Best Visual)
+1. **Insert Combo Chart**.
 2. Configure:
-   - **Rows**: Drag `Patients[groupVar]` to Rows.
-   - **Columns**: Drag `TimePoints[Time]` to Columns.
-   - **Values**: Drag `AtRisk_AtTime` measure to Values.
+   - **Shared axis (X)**: `TimePoints[Time]` (Continuous).
+   - **Column values**: `KM_Lower_CI`, `KM_Upper_CI` (as columns/area).
+   - **Line values**: `KM_Survival` (as line, one per group).
 3. **Format**:
-   - Right-click column headers → disable "Total" if unwanted.
-   - Adjust column width for readability.
-   - Set number format to whole number (no decimals).
+   - Column axis: **Stacked** (not clustered).
+   - Column transparency: **80%** (allows KM line to show).
+   - Column fill: Light gray or group-specific light shade.
+   - Line: Bold, color per group.
 
-**Result**: A table showing "Number at Risk" per group and timepoint.
+**Result**: KM curve with shaded CI region
 
-| groupVar | 0 | 30 | 60 | 90 |
-|----------|---|----|----|-----|
-| GroupA   | 100 | 95 | 88 | 80 |
-| GroupB   | 100 | 92 | 84 | 75 |
+```
+Survival with 95% CI
+    1.0
+         ╔═════════════════════════════════╗ CI band
+         ║  ●─────────●                   ║ KM curve
+    0.8  ║   │╭─────╯ ╲                   ║
+         ║   ╰─╯       ╲──●               ║
+    0.6  ║              ╲  ╲●──────●      ║
+         ║               ╲  ╲     ╱╱      ║
+    0.4  ║                ╰──●   ╱╱       ║
+         ║                    ╰─╱╱        ║
+    0.2  └──────────────────────────────────
+        0    30   60   90   120  Time
+```
 
----
+#### Option B: Three Separate Line Charts (Simple Alternative)
+1. Create **3 line charts**:
+   - Chart 1: KM_Survival only (main).
+   - Chart 2: KM_Lower_CI (dashed, thin, faint).
+   - Chart 3: KM_Upper_CI (dashed, thin, faint).
+2. Overlay on same visual area (if Power BI supports layering).
 
-### Visual 2: KM Curve (Line Chart)
-
-1. **Insert a Line Chart visual**.
-2. Configure:
-   - **X-Axis**: Drag `TimePoints[Time]`.
-   - **Y-Axis**: Drag `KM_Survival` measure.
-   - **Legend**: Drag `Patients[groupVar]`.
-3. **Format**:
-   - X-Axis: Set to **Continuous** (not Categorical).
-   - Y-Axis: Set range to 0–1.
-   - Add data labels if desired (show value at each point).
-
-**Result**: Step-function KM curves per group, declining from 1.0 at time 0.
-
----
-
-### Visual 3: KM with Confidence Intervals (Advanced)
-
-1. **Insert a Combo Chart** (or use Ribbon chart if available).
-2. Configure:
-   - **X-Axis**: `TimePoints[Time]` (Continuous).
-   - **Y-Axis (Line)**: `KM_Survival` (one per group).
-   - **Y-Axis (Column, or secondary Line)**: `KM_Lower_CI` and `KM_Upper_CI`.
-3. **Alternatively**, create three separate line charts and overlay (less ideal but works).
-
-**Result**: KM curves with confidence interval bands.
+**Recommendation**: Option A (Combo) is cleaner for publication.
 
 ---
 
-### Visual 4: Validation Cards
+### Visual 4: Validation Dashboard
 
-Create simple **Card** visuals for quick checks:
+Create a summary card set to verify calculations.
 
-1. Card 1: `Total_Patients`
-2. Card 2: `Total_Events`
-3. Card 3: `COUNT(TimePoints[Time])`
+#### Step 1: Add Card Visuals
+1. **Insert Card** visual (4 cards total).
+2. Assign measures:
+   - Card 1: `Total_Patients`
+   - Card 2: `Total_Events`
+   - Card 3: Calculated measure (Events / Patients) as event rate
+   - Card 4: `COUNT(TimePoints[Time])` as number of timepoints
 
-Verify these match expected values.
+#### Card Configuration
+1. **Format each card**:
+   - Background: Light gray (#F5F5F5).
+   - Text size: 12pt (title), 18pt (value).
+   - Title: Identify measure (e.g., "Total Patients").
+   - Category labels: Bold.
+
+#### Step 2: Validation Display Format
+```
+┌──────────────────┬──────────────────┐
+│ Total Patients   │  Total Events     │
+│      247         │       83          │
+└──────────────────┴──────────────────┘
+┌──────────────────┬──────────────────┐
+│ Event Rate       │  Timepoints      │
+│     33.6%        │        6         │
+└──────────────────┴──────────────────┘
+```
+
+**Expected values**:
+- Total_Patients: Match your cohort size.
+- Total_Events: ≤ Total_Patients.
+- Event Rate: 10–50% typically.
+- Timepoints: 4–10 (adjust based on choice).
+
+---
+
+### Visual 5: Interactive Page Layout (Recommended)
+
+Combine all visuals for a complete survival analysis dashboard.
+
+#### Layout Template
+
+```
+┌─────────────────── KM SURVIVAL ANALYSIS DASHBOARD ──────────────────┐
+│                                                                      │
+│  [Slicer: Treatment Group] [Slicer: Cohort] [Slicer: Max Days]   │
+│                                                                      │
+│  ┌───────────────────────────────┬────────────────────────────┐   │
+│  │                               │   Validation Cards         │   │
+│  │   KM Survival Curve           │  ┌──────────┬──────────┐   │   │
+│  │   (Line Chart)                │  │ Patients │ Events   │   │   │
+│  │                               │  │   247    │    83    │   │   │
+│  │   [with data labels]          │  └──────────┴──────────┘   │   │
+│  │   and CI bands                │  ┌──────────┬──────────┐   │   │
+│  │                               │  │Rate (%)  │ TP Count │   │   │
+│  │   GroupA ───                  │  │  33.6%   │    6     │   │   │
+│  │   GroupB ───                  │  └──────────┴──────────┘   │   │
+│  │   GroupC ───                  │                            │   │
+│  │                               │                            │   │
+│  └───────────────────────────────┴────────────────────────────┘   │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │  Risk Table (Matrix)                                         │  │
+│  │  ShowNumber at Risk by Group and Timepoint                   │  │
+│  │                                                              │  │
+│  │  groupVar │  0  │ 30 │ 60 │ 90 │ 120 │ 150 │               │  │
+│  │  ───────────────────────────────────────────                │  │
+│  │  GroupA   │ 100 │ 95 │ 88 │ 80 │  72 │  64 │               │  │
+│  │  GroupB   │ 100 │ 92 │ 84 │ 75 │  68 │  58 │               │  │
+│  │  GroupC   │ 100 │ 94 │ 87 │ 78 │  70 │  62 │               │  │
+│  │                                                              │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+#### Step-by-Step Assembly
+
+1. **Add Slicers** (top row):
+   - **Slicer 1**: `Patients[groupVar]` (dropdown or buttons).
+   - **Slicer 2**: Cohort column (if applicable).
+   - **Slicer 3**: Text input for max days (synced to `max_day` parameter if available).
+
+2. **Left Column** (60% width):
+   - **KM Curve** (Line Chart).
+   - Takes up ~3/4 of page height.
+
+3. **Right Column** (40% width):
+   - **Validation Cards** (4 cards stacked).
+   - Takes up ~1/4 of page height.
+   - Provides quick sanity checks.
+
+4. **Bottom Row** (100% width):
+   - **Risk Table** (Matrix) spanning full width.
+   - Height: ~25% of page.
+
+#### Slicer Configuration
+1. **Right-click Slicer** → **Format visual**:
+   - Style: **Dropdown** (compact) or **Buttons** (visual selection).
+   - Search enabled: **Yes** (for many groups).
+   - Multi-select: **Yes** (compare specific subsets).
+
+2. **Sync Slicers**:
+   - View tab → **Sync slicers** → Enable for all related pages.
+
+---
+
+### Visual 6: Advanced - Multi-Page Report
+
+For comprehensive analysis, create 3 pages:
+
+#### Page 1: Executive Summary (Current Layout)
+- KM curves + risk table + validation cards.
+- Intended for leadership/presentations.
+
+#### Page 2: Detailed Analysis
+- Separate line chart per group (not overlaid).
+- Risk table for each group.
+- CI bounds visible per group.
+
+#### Page 3: Subgroup Analysis
+- Slicers for demographic breakdowns (e.g., age, gender, stage).
+- KM curves by subgroup.
+- Useful for regulatory submissions.
+
+---
+
+### Common Visual Issues & Fixes
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| KM curve is jagged/blocky | X-axis is **Categorical** not **Continuous** | Right-click X-axis → **Continuous** |
+| Risk table rows in wrong order | groupVar not sorted | Pre-sort groupVar in Patients table or use DAX SORT |
+| Colors not matching legend | Color assignment not applied or cached | Refresh visual, reassign color, Ctrl+Shift+R |
+| Data labels overlapping | Too many timepoints or font too large | Reduce font size (8pt), use **Right** position |
+| Matrix too wide for page | Too many timepoints | Limit to 6 timepoints or use horizontal scrolling |
+| Line chart legend shows "Value" | Measure not properly named | Rename measure in fields list or formatting |
+
+---
+
+### Formatting Best Practices
+
+**Color Palette** (colorblind-friendly):
+- Blue: #4472C4 (GroupA)
+- Red: #ED7D31 (GroupB)
+- Green: #70AD47 (GroupC)
+- Gray: #A5A5A5 (CI bands)
+
+**Font Guidance**:
+- Title: 14pt, Bold
+- Axis labels: 11pt
+- Data labels: 9pt
+- Legend: 10pt
+
+**Spacing**:
+- Margin around visuals: 10px
+- Gap between sections: 20px
+- Top slicer area: 60px height
+
+---
+
+### Result: Production-Ready Dashboard
+
+Your final dashboard exports cleanly to PDF for regulatory submissions, presentations, or publications.
 
 ---
 
 ## Performance & Validation
 
-### Performance Tips
+### Performance Optimization Strategies
 
-1. **Pre-aggregate in Power Query**: Ensure `Patients` table is as lean as possible (only PT, groupVar, FinalEvent, FinalDay).
-2. **Limit TimePoints**: Use Option A (manual) rather than Option B (distinct) to avoid generating hundreds of timepoints.
-3. **Reduce Patients table size**: If dataset is >1M rows:
-   - Pre-filter to relevant cohorts at data load time.
-   - Aggregate to patient-level before loading (not in DAX).
-4. **Use Measures, not Columns**: All computations should be measures, not calculated columns on Patients.
-5. **Cache subqueries** (Power BI Premium): For large `KM_Survival` measure, consider using `CACHE` to avoid recalculating subsets.
+#### Strategy 1: Pre-Aggregation in Power Query (Highest Impact)
 
-### Validation Checklist
+**Problem**: Large datasets (>1M rows) slow down DAX calculations.
 
-- [ ] Count of `Total_Patients` matches source data.
-- [ ] `Total_Events` ≤ `Total_Patients`.
-- [ ] Risk table shows decreasing counts down the columns as time progresses.
-- [ ] KM survival starts at 1.0 and is non-increasing (monotonic descent).
-- [ ] KM curves for different groups are visually distinct (not identical).
-- [ ] Confidence intervals are symmetric around KM point estimate (roughly).
-- [ ] No negative survival values or >1.0 values.
-- [ ] Manually compute KM at one group-timepoint using Excel and compare (spot check).
+**Solution**: Aggregate to patient-level in Power Query *before* loading to Power BI.
 
-### Manual Spot Check Example
+1. **In Power Query**, after creating the `Patients` table, add a grouping step:
+```m
+// Structure 2: Pre-aggregate all endpoints
+GroupedPatients = Table.Group(
+  Patients, 
+  {"PT", "groupVar"}, 
+  {
+    {"Final_Event", each List.Max(List.ReplaceMatchingValues([Event], {null, 0}))},
+    {"Final_Day", each List.Min([Day])}
+  }
+)
+```
 
-**For GroupA at time=60:**
-1. Count Events at t=60: `Events_AtTime` = e.g., 5
-2. Count At-Risk at t=60: `AtRisk_AtTime` = e.g., 88
-3. Compute factors:
-   - At t=30: events=7, at-risk=100 → factor = 1 - 7/100 = 0.93
-   - At t=60: events=5, at-risk=88 → factor = 1 - 5/88 = 0.9432
-4. KM(t=60) = 0.93 × 0.9432 ≈ 0.877
-5. Compare with `KM_Survival` measure showing for GroupA at t=60 → should match ~0.877.
+2. **Load only this aggregated table** into Power BI. Size shrinks significantly:
+   - Before: 1M × ~20 columns = 20M cells
+   - After: 100K × 4 columns = 400K cells
+   - **Reduction: 50x**
+
+**Impact**: DAX measures compute 50× faster.
+
+---
+
+#### Strategy 2: Limit TimePoints (High Impact)
+
+**Problem**: 100 distinct timepoints require 100 iterations in PRODUCTX.
+
+**Solution**: Use Option A (manual) TimePoints with 4–6 points.
+
+**Comparison**:
+
+| Option | Timepoints | Performance | Use Case |
+|--------|-----------|-------------|----------|
+| Manual (A) | 4–6 | ⚡⚡⚡ Instant | Recommended; clinical milestones |
+| Distinct (B) | 10–100 | ⚡ ~1s | Exploratory; many events |
+| Auto-spaced (C) | 10–50 | ⚡ ~1s | Evenly-spaced required |
+
+**Recommendation**: Always use Option A for production dashboards.
+
+---
+
+#### Strategy 3: Reduce Patients Table Further (Medium Impact)
+
+If dataset still large after pre-aggregation:
+
+1. **Filter cohort at load time**:
+```m
+FilteredPatients = Table.SelectRows(Patients, 
+  each [FinalDay] <= 365 and [Age] >= 18)
+```
+
+2. **Exclude unnecessary columns**:
+```m
+SelectColumns = Table.SelectColumns(FilteredPatients, 
+  {"PT", "groupVar", "Final_Event", "Final_Day"})
+```
+
+3. **Result**: Only essential data in Power BI model.
+
+---
+
+#### Strategy 4: Use DAX Measures, Not Calculated Columns (Medium Impact)
+
+❌ **Bad** (slow):
+```dax
+PatientCount = CALCULATE(COUNTROWS(Patients), Patients[groupVar] = "GroupA")
+// Creates overhead if applied as calculated column on every row
+```
+
+✅ **Good** (fast):
+```dax
+[AtRisk_AtTime] = CALCULATE(COUNTROWS(Patients), Patients[FinalDay] >= MAX(TimePoints[Time]))
+// Measure computes on-demand per cell context
+```
+
+**Rule**: All KM computations must be **measures**, not columns.
+
+---
+
+#### Strategy 5: Enable DirectQuery (If On-Premises Database)
+
+For very large datasets in SQL Server / Azure SQL:
+
+1. In Power BI: **Get Data** → **SQL Server** → **DirectQuery mode**.
+2. Push aggregation to database:
+```sql
+SELECT PT, groupVar, MAX(Event) as Final_Event, MIN(Day) as Final_Day
+FROM PatientData
+GROUP BY PT, groupVar
+```
+3. Load minimal result set.
+
+**Trade-off**: Slightly slower than Import; much smaller Power BI file.
+
+---
+
+#### Strategy 6: Power BI Premium CACHE Function (If Available)
+
+For Premium capacity, cache expensive computations:
+
+```dax
+KM_Survival_Cached = 
+CACHE(
+  VAR t = MAX(TimePoints[Time])
+  VAR timesToUse = FILTER(ALL(TimePoints), TimePoints[Time] <= t)
+  RETURN
+  IF(t = 0, 1,
+    PRODUCTX(timesToUse,
+      VAR tj = TimePoints[Time]
+      VAR dj = CALCULATE(COUNTROWS(Patients), Patients[FinalDay] = tj, Patients[FinalEvent] = 1)
+      VAR nj = CALCULATE(COUNTROWS(Patients), Patients[FinalDay] >= tj)
+      RETURN IF(nj = 0, 1, 1 - DIVIDE(dj, nj))
+    )
+  )
+)
+```
+
+**Benefit**: Reuses cached result across page refreshes (same time value).
+
+---
+
+### Validation Checklist (Comprehensive)
+
+#### Data Quality Checks
+
+- [ ] **No nulls in Final_Day**: COUNTA(Patients[FinalDay]) = COUNTROWS(Patients)
+- [ ] **No negative days**: MIN(Patients[FinalDay]) ≥ 0
+- [ ] **Event is binary**: DISTINCT(Patients[FinalEvent]) = {0, 1}
+- [ ] **No reversed times**: Final_Day ≥ 0 for all rows
+- [ ] **No duplicate patients**: COUNTROWS(Patients) = DISTINCTCOUNT(Patients[PT])
+
+#### Aggregation Verification
+
+- [ ] **Total_Patients count**: Matches source data record count
+- [ ] **Total_Events**: T = COUNTROWS(Patients, FinalEvent=1) ≤ Total_Patients
+- [ ] **Event rate**: Total_Events / Total_Patients between 5–70% (typical)
+- [ ] **Timepoint coverage**: All timepoints in range [0, MAX(Final_Day)]
+
+#### KM Curve Validation
+
+- [ ] **Starts at 1.0**: KM at time=0 is exactly 1.0
+- [ ] **Monotonic**: S(t) is non-increasing (never goes up)
+- [ ] **No negative values**: S(t) ≥ 0 for all t
+- [ ] **No >1.0 values**: S(t) ≤ 1.0 for all t
+- [ ] **Sensible step size**: Survival drops ~1–5% per timepoint (group-dependent)
+
+#### Confidence Interval Validation
+
+- [ ] **Lower CI ≤ Point Estimate**: KM_Lower_CI ≤ KM_Survival
+- [ ] **Upper CI ≥ Point Estimate**: KM_Upper_CI ≥ KM_Survival
+- [ ] **Both clipped [0,1]**: 0 ≤ KM_Lower_CI ≤ KM_Upper_CI ≤ 1
+- [ ] **Symmetric roughly**: |Upper − KM| ≈ |KM − Lower| (Greenwood approximation)
+
+#### Risk Table Validation
+
+- [ ] **At-risk decreasing**: Count decreases or stays same as time progresses
+- [ ] **At-risk at t=0 = Total_Patients**: AtRisk_AtTime(t=0) = Total_Patients
+- [ ] **Events ≤ At-risk**: Events_AtTime(t) ≤ AtRisk_AtTime(t) for all t
+- [ ] **No jumps**: No sudden gaps in at-risk counts (indicates data error)
+
+#### Visual Validation
+
+- [ ] **Curves distinct**: Different groups show visually different survival patterns
+- [ ] **Legend matches data**: Legend labels match groupVar values exactly
+- [ ] **Axes labeled**: X = "Time (days)", Y = "Probability" or "Survival"
+- [ ] **Timepoints evenly spaced**: Or rational intervals (0, 30, 60, 90, ...)
+
+---
+
+### Manual Spot-Check Procedure
+
+Validate one group-timepoint combination using Excel.
+
+**Example: GroupA at Time=60**
+
+#### Step 1: Extract Raw Data
+```
+Patient | groupVar | FinalDay | FinalEvent
+--------|----------|----------|----------
+1       | GroupA   | 15       | 0
+2       | GroupA   | 30       | 1
+3       | GroupA   | 30       | 0
+4       | GroupA   | 45       | 1
+5       | GroupA   | 60       | 1
+6       | GroupA   | 60       | 0
+7       | GroupA   | 75       | 0
+...
+100     | GroupA   | 365      | 0
+```
+
+#### Step 2: Calculate At-Risk and Events at Each Timepoint
+
+```
+Timepoint | At-Risk | Events | Survival_Factor
+----------|---------|--------|------------------
+0         | 100     | 0      | 1.0000
+30        | 100     | 2      | 0.9800
+60        | 98      | 1      | 0.9898
+```
+
+**Formulas**:
+- **At-Risk(t)**: Count of patients with FinalDay ≥ t
+- **Events(t)**: Count of patients with FinalDay = t AND FinalEvent = 1
+- **Survival_Factor(t)**: 1 - (Events(t) / At-Risk(t))
+
+#### Step 3: Compute Cumulative KM
+
+$$KM(t) = \prod_{s \leq t} \left(1 - \frac{d_s}{n_s}\right)$$
+
+```
+KM(0) = 1.0
+KM(30) = 1.0 × 0.9800 = 0.9800
+KM(60) = 0.9800 × 0.9898 = 0.9700
+```
+
+#### Step 4: Compare with Power BI Measure
+
+1. In Power BI, create a **Table** visual:
+   - Rows: `Patients[groupVar]` filtered to "GroupA"
+   - Columns: `TimePoints[Time]`
+   - Values: `KM_Survival` measure
+2. Look up the cell for GroupA × Time=60.
+3. **Expected**: KM_Survival ≈ 0.9700 (±0.0001 for rounding).
+
+**If match**: ✅ Calculation correct.  
+**If mismatch**: ❌ Debug the DAX measure or data.
+
+---
+
+### Debugging Checklist
+
+| Symptom | Test | Solution |
+|---------|------|----------|
+| All KM = 1.0 | Check if FinalDay column exists | Verify Power Query step created FinalDay |
+| All KM = 0.0 | Check if FinalEvent all 1s | Should be mix of 0s and 1s |
+| KM increases | Check monotonicity | Verify final events computed correctly |
+| Risk table empty | Check groupVar in Rows | Move to Rows, not Values |
+| Different from Python/R | Check timepoint rounding | Ensure manual timepoints match Python list |
+| Slow rendering | Check timepoint count | Reduce to ≤6 timepoints |
+
+---
+
+### Expected Output Examples
+
+#### Small Cohort (N=100, 3 groups)
+
+```
+TimePoint | GroupA_Risk | GroupA_KM | GroupB_Risk | GroupB_KM | GroupC_Risk | GroupC_KM
+----------|-------------|-----------|-------------|-----------|-------------|----------
+0         | 33          | 1.000     | 34          | 1.000     | 33          | 1.000
+30        | 32          | 0.970     | 33          | 0.970     | 32          | 0.970
+60        | 30          | 0.909     | 32          | 0.909     | 31          | 0.936
+90        | 28          | 0.864     | 30          | 0.848     | 29          | 0.901
+End       | 15          | 0.621     | 18          | 0.606     | 20          | 0.723
+```
+
+#### Large Cohort (N=1000, 2 groups)
+
+```
+TimePoint | Control_Risk | Control_KM | Treatment_Risk | Treatment_KM
+----------|--------------|-----------|----------------|---------------
+0         | 500          | 1.000     | 500            | 1.000
+30        | 485          | 0.970     | 490            | 0.980
+60        | 465          | 0.931     | 475            | 0.960
+90        | 445          | 0.878     | 455            | 0.929
+120       | 420          | 0.817     | 430            | 0.894
+180       | 380          | 0.706     | 395            | 0.821
+365       | 250          | 0.445     | 310            | 0.598
+```
+
+---
+
+### Publication Checklist
+
+Before sharing results (presentations, regulatory submissions, publications):
+
+- [ ] Validation checks all passed
+- [ ] Spot-check matches manual computation
+- [ ] N (total patients) clearly labeled in report
+- [ ] Follow-up time clearly labeled (median days shown)
+- [ ] Event rate clearly stated (X% of cohort experienced event)
+- [ ] Number at risk visible in risk table at each timepoint
+- [ ] Confidence intervals shown (95% specified)
+- [ ] Legend distinguishes all groups clearly
+- [ ] Axes properly labeled with units
+- [ ] Any censoring assumptions stated in footnote
+- [ ] Methods section specifies: "Kaplan–Meier product-limit estimator; Greenwood variance; 95% CI"
+
+---
+
+## Summary: Validation & Performance Reference
+
+**For Speed**:
+1. Aggregate to patient-level in Power Query
+2. Use ≤6 manual timepoints (Option A)
+3. Verify all calculations are measures (not columns)
+
+**For Accuracy**:
+1. Pass all validation checks (data quality, aggregation, KM, CI, risk table)
+2. Conduct manual spot-check (Excel or calculator)
+3. Compare with Python/R reference implementation if available
+
+**For Publication**:
+1. Complete all validation checklist items
+2. Clearly label N, event rate, follow-up time
+3. Ensure footnote specifies KM methodology (product-limit, Greenwood, CI level)
 
 ---
 
