@@ -1,0 +1,24 @@
+# OS files
+.DS_Store
+.localized
+.accelerate/
+
+# Downloaded files and images
+*.dmg
+*.pdf
+*.pptx
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
