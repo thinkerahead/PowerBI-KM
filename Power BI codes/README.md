@@ -67,3 +67,12 @@ All packages are pre-installed in Power BI:
 - Confidence intervals assume alpha = 0.05 (95% CI)
 - Risk table vertical axis uses timepoints you specify
 - Reference lines support group-specific colors or single gray line
+
+## R Script
+
+An R version of the KM script is included: `PowerBI_KM.R`.
+- Required R packages: `survival`, `ggplot2`.
+- Optional: `gridExtra` to render the risk table beneath the plot.
+- The script falls back to plotting only if `gridExtra` is not available.
+
+When using R visuals in Power BI Service, confirm these packages are available in the service's R environment. If `gridExtra` is missing, the script still produces the KM plot.
